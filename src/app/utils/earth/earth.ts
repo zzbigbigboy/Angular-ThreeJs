@@ -24,6 +24,5 @@ export function getEarth(threeModel: ThreeModel) {
           })
     );
     earthBall.layers.set(0);
-    console.log(earthBall)
     return earthBall;
 }

@@ -1,28 +1,60 @@
 import * as THREE from 'three';
 import TWEEN from '@tweenjs/tween.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { createAmbientLight, createSpotLight } from './earth/light';
+import { LOCATIONS } from 'src/assets/ts/constants';
+import { createLocationSprite } from './earth/locations';
+import { onMouseClick } from './event';
 
 export default class ThreeModel {
   public renderer; // renderer
   public scene; // 场景
   public camera; // 相机
   public controls; // 控制器
+  public locationGroup;
+  public earthGroup;
   /* */
   public autoRotate = true;
   public rotationSpeed = 0.001;
   public cloudSpeed = -0.0003;
+  public spotLight;
+  public cloud;
   constructor() {
-    this.initScene();
+    this.init();
   }
 
-  initScene() {
-    this.scene = new THREE.Scene();
+  init() {
+    this.createScene();
     this.createCamera();
     this.createRenderer();
     this.createControls();
     this.createGeometry();
     this.createLight();
-    this.initAnimate();
+
+    this.createLocations()
+
+    this.loop();
+
+    this.addEventListen()
+  }
+
+  addEventListen() {
+    const _this = this;
+    window.addEventListener( 'click', (e) => onMouseClick(e, _this.scene, _this.camera), false );
+  }
+
+  removeEventListen() {
+    const _this = this;
+    window.removeEventListener( 'click', (e) => onMouseClick(e, _this.scene, _this.camera), false );
+  }
+
+  createScene() {
+    this.scene = new THREE.Scene();
+    this.earthGroup = new THREE.Group()
+    this.locationGroup = new THREE.Group()
+
+    this.scene.add(this.earthGroup);
+    this.scene.add(this.locationGroup);
   }
 
   createRenderer() {
@@ -37,7 +69,6 @@ export default class ThreeModel {
   }
 
   createCamera() {
-    const _this = this;
     this.camera = new THREE.PerspectiveCamera(
       40,
       window.innerWidth / window.innerHeight,
@@ -47,6 +78,8 @@ export default class ThreeModel {
     // 设置相机位置
     // this.camera.position.set(0, 0, -28)
     this.camera.position.set(3.55, 0, -328)
+    
+    this.scene.add(this.camera)
   }
 
   createControls() {
@@ -76,24 +109,12 @@ export default class ThreeModel {
   }
 
   createLight() {
+    this.scene.add(createAmbientLight());
+    this.camera.add(createSpotLight());
+
     //添加环境光
     // var ambient = new THREE.AmbientLight(0xffffff);
     // const hemisphere = new THREE.HemisphereLight('#ffffff', '#ffffff', 1)
-    this.scene.add(new THREE.AmbientLight(0x393939, 0.5));
-
-    let spotLight = new THREE.SpotLight(0xffffff, 1.2)
-    spotLight.position.set(-26, 11, -11)
-    spotLight.angle = 0.2
-    spotLight.castShadow = false
-    spotLight.penumbra = 0.4
-    spotLight.distance = 124
-    spotLight.decay = 1
-    spotLight.shadow.camera.near = 50
-    spotLight.shadow.camera.far = 200
-    spotLight.shadow.camera.fov = 35
-    spotLight.shadow.mapSize.height = 1024
-    spotLight.shadow.mapSize.width = 1024
-    this.scene.add(spotLight);
 
     // 添加定向光线
     // var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -101,19 +122,34 @@ export default class ThreeModel {
     // this.scene.add(directionalLight);
   }
 
-  initAnimate() {
+  createLocations () {
+    LOCATIONS.forEach(location => {
+      let sprite = createLocationSprite(location)
+      this.locationGroup.add(sprite)
+    })
+  }
+
+  loop() {
+    requestAnimationFrame(this.loop.bind(this))
+    this.animate()
+    this.render()
+  }
+
+  animate() {
     const _this = this;
-    function animate() {
-      requestAnimationFrame(animate);
-      if (_this.autoRotate) {
-        _this.camera.position.x = _this.camera.position.x * Math.cos(_this.rotationSpeed) - _this.camera.position.z * Math.sin(_this.rotationSpeed)
-        _this.camera.position.z = _this.camera.position.z * Math.cos(_this.rotationSpeed) + _this.camera.position.x * Math.sin(_this.rotationSpeed)
-      }
-      _this.renderer.render(_this.scene, _this.camera);
-      _this.controls.update();
-      TWEEN.update()
+    if (_this.autoRotate) {
+      _this.camera.position.x = _this.camera.position.x * Math.cos(_this.rotationSpeed) - _this.camera.position.z * Math.sin(_this.rotationSpeed)
+      _this.camera.position.z = _this.camera.position.z * Math.cos(_this.rotationSpeed) + _this.camera.position.x * Math.sin(_this.rotationSpeed)
     }
-    animate();
+    if(_this.cloud) {
+      _this.cloud.rotation.y += _this.cloudSpeed
+    }
+    _this.controls.update();
+    TWEEN.update()
+  }
+
+  render() {
+    this.renderer.render(this.scene, this.camera)
   }
 
 
