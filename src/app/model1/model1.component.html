@@ -1,3 +1,9 @@
 <div class="body">
     <div id="model1"></div>
+    <div class="opts">
+        <div class="btn" (click)="click()">
+            <img src="/assets/images/btn_show.png" />
+        </div>
+    </div>
+    <app-clouds *ngIf="loading"></app-clouds>
 </div>

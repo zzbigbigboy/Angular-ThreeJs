@@ -4,11 +4,13 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { Model1Component } from './model1/model1.component';
+import { CloudsComponent } from './clouds/clouds.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    Model1Component
+    Model1Component,
+    CloudsComponent
   ],
   imports: [
     BrowserModule,

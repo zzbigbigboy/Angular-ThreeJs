@@ -26,8 +26,8 @@ import wxShareImg from '../images/wx_share_img.png'
 // import audioSprite from '../sounds/music_sprite.mp3'
 // import backgroundAudio from '../sounds/music_bg.mp3'
 
-export const PAGE_WIDTH = 375
-export const PAGE_HEIGHT = 600
+export const PAGE_WIDTH = document.body.clientWidth;
+export const PAGE_HEIGHT = document.body.clientHeight;
 
 export const MEDIA_URLS = {
 //   videoSprite,

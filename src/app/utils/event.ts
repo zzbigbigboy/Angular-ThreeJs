@@ -15,7 +15,7 @@ export function onMouseClick(event, scene, camera) {
 
     // 获取raycaster直线和所有模型相交的数组集合
     var intersects = raycaster.intersectObjects(scene.children);
-    console.log(intersects);
+    // console.log(intersects);
 
     //将所有的相交的模型的颜色设置为红色
     for (var i = 0; i < intersects.length; i++) {
