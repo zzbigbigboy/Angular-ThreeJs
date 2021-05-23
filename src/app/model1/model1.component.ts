@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { getEarth } from '../utils/earth/earth';
 import { GlbModel } from '../utils/glb';
 import ThreeModel from '../utils/three';
@@ -10,9 +10,11 @@ import { createCloud } from '../utils/earth/cloud';
   templateUrl: './model1.component.html',
   styleUrls: ['./model1.component.less'],
 })
-export class Model1Component implements OnInit {
+export class Model1Component implements OnInit, OnDestroy {
   threeModel: ThreeModel;
   loading = false;
+  timestamp = 0;
+  timer = null;
   constructor() {}
 
   ngOnInit(): void {
@@ -39,61 +41,91 @@ export class Model1Component implements OnInit {
       })
       .easing(TWEEN.Easing.Cubic.Out)
       .start();
+
+    this.addListen();
+  }
+
+  ngOnDestroy() {
+    this.removeListen()
+  }
+
+  addListen() {
+    const long_dom = document.getElementById('long_btn');
+    long_dom.addEventListener('touchstart', () => {
+      this.timer = setTimeout(() => {
+        this.click()
+      }, 800);
+      this.timestamp = new Date().getTime();
+      console.log(this.timestamp)
+    });
+    long_dom.addEventListener('touchend', () => {
+      clearTimeout(this.timer);
+      // console.log(new Date().getTime() - this.timestamp);
+      // if (new Date().getTime() - this.timestamp) {
+      //   this.click()
+      // }
+    });
+  }
+
+  removeListen() {
+    const long_dom = document.getElementById('long_btn');
+    long_dom.removeEventListener('touchstart', () => {})
+    long_dom.removeEventListener('touchend', () => {})
   }
 
   click() {
     const target = [-20.03, 13.47, -14.61];
     const near = [-3.54, 2.38, -2.58];
-    let tween1 = new TWEEN.Tween(this.threeModel.camera.position)
+    let tween1 = new TWEEN.Tween(this.threeModel.camera.position) // 移动摄像机到目标点上方
       .to(
         {
           x: target[0],
           y: target[1],
           z: target[2],
         },
-        1200
+        1600
       )
       .onComplete(() => {
-        let tween2 = new TWEEN.Tween(this.threeModel.camera.position)
+        let tween2 = new TWEEN.Tween(this.threeModel.camera.position) // 视角下降
           .to(
             {
               x: near[0],
               y: near[1],
               z: near[2],
             },
-            800
+            1200
           )
           .onComplete(() => {
             tween2 = null;
-            console.log('1111111111111');
-            this.loading = true;
-            setTimeout(() => {
-              this.loading = false;
-              this.resetEarth(target);
-            }, 2000);
           })
           .easing(TWEEN.Easing.Cubic.Out)
           .start();
         tween1 = null;
+        setTimeout(() => {
+          this.loading = true;
+          // setTimeout(() => {
+          //   this.resetEarth(target);
+          // }, 10*1000);
+        }, 600);
       })
       .easing(TWEEN.Easing.Cubic.Out)
       .start();
   }
 
   resetEarth(target) {
-    let tween1 = new TWEEN.Tween(this.threeModel.camera.position)
+    this.loading = false;
+    let tween1 = new TWEEN.Tween(this.threeModel.camera.position) // 返回太空
       .to(
         {
           x: target[0],
           y: target[1],
           z: target[2],
         },
-        800
+        1000
       )
       .onComplete(() => {
         tween1 = null;
       })
-      .easing(TWEEN.Easing.Cubic.Out)
       .start();
   }
 }

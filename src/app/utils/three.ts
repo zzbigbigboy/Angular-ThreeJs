@@ -19,6 +19,9 @@ export default class ThreeModel {
   public cloudSpeed = -0.0003;
   public spotLight;
   public cloud;
+
+  public width = window.innerWidth * 2;
+  public height = window.innerHeight * 2;
   constructor() {
     this.init();
   }
@@ -64,14 +67,17 @@ export default class ThreeModel {
     });
     this.renderer.autoClear = false;
     // 设置窗口尺寸
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setSize(this.width, this.height);
+    this.renderer.domElement.style.position = 'relative'
+    this.renderer.domElement.style.width = this.width / 2 + 'px'
+    this.renderer.domElement.style.height = this.height / 2 + 'px'
     document.getElementById('model1').appendChild(this.renderer.domElement);
   }
 
   createCamera() {
     this.camera = new THREE.PerspectiveCamera(
       40,
-      window.innerWidth / window.innerHeight,
+      this.width / this.height,
       0.1,
       1000
     );
